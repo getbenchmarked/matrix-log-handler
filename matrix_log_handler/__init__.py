@@ -12,9 +12,6 @@ class MatrixLogHandler(logging.Handler):
                format='[%(levelname)s] [%(asctime)s] [%(name)s] - %(message)s'):
         logging.Handler.__init__(self)
 
-        if (username is None or password is None) and token is None:
-            raise ValueError('Either username and password, or token must be set!')
-
         self.base_url = base_url
         self.username = username
         self.password = password
@@ -27,9 +24,11 @@ class MatrixLogHandler(logging.Handler):
         self.formatter = logging.Formatter(format)
 
     def _login(self):
-        response = self.matrix.login('m.login.password',
-                                     user=self.username,
-                                     password=self.password)
+        if self.username is None or self.password is None:
+            raise ValueError(
+                'Both username and password must be set if there is no token available!')
+
+        response = self.matrix.login('m.login.password', user=self.username, password=self.password)
 
         self.token = response['access_token']
 
