@@ -12,7 +12,7 @@ class MatrixLogHandler(logging.Handler):
                format='[%(levelname)s] [%(asctime)s] [%(name)s] - %(message)s'):
         logging.Handler.__init__(self)
 
-        if (username is None and password is None) and token is None:
+        if (username is None or password is None) and token is None:
             raise ValueError('Either username and password, or token must be set!')
 
         self.base_url = base_url
