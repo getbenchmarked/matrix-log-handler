@@ -19,15 +19,18 @@ class MatrixLogHandler(logging.Handler):
     :param token: a valid access token that can be used to identify the log handler to the Matrix
         homeserver.  This is the recommended way for authorization.  If not set, a
         username/password pair must be set so the handler can acquire an access token.
+    :use_m_text: if `True`, the handler will send `m.text` messages instead of `m.notice` ones
+        (which is intended for bots)
     :type base_url: str
     :type room_id: str
     :type username: str
     :type password: str
     :type token: str
+    :type use_m_text: bool
     """
 
     def __init__(self, base_url, room_id,
-               username=None, password=None, token=None, fail_silent=False,
+               username=None, password=None, token=None, use_m_text=False,
                format='[%(levelname)s] [%(asctime)s] [%(name)s] - %(message)s'):
         logging.Handler.__init__(self)
 
@@ -36,7 +39,7 @@ class MatrixLogHandler(logging.Handler):
         self.password = password
         self.room_id = room_id
         self.token = token
-        self.fail_silent = fail_silent
+        self.use_m_text = use_m_text
 
         self.matrix = MatrixHttpApi(base_url, token=self.token)
 
@@ -53,7 +56,7 @@ class MatrixLogHandler(logging.Handler):
 
     def _make_content(self, record):
         content = {
-            'msgtype': 'm.text',
+            'msgtype': 'm.text' if self.use_m_text else 'm.notice',
             'body': self.format(record),
         }
 
